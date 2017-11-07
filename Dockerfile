@@ -1,4 +1,4 @@
-FROM ubuntu:15.10
+FROM ubuntu:17.10
 
 MAINTAINER danielperezr88 <danielperezr88@gmail.com>
 
@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
         g++ \
         git \
         libfreetype6-dev \
-        libpng12-dev \
+        libpng-dev \
         libzmq3-dev \
         openjdk-8-jdk
 
@@ -44,7 +44,7 @@ RUN echo "build --spawn_strategy=standalone --genrule_strategy=standalone" \
     >>/root/.bazelrc
 ENV BAZELRC /root/.bazelrc
 # Install the most recent bazel release.
-ENV BAZEL_VERSION 0.3.2
+ENV BAZEL_VERSION 0.5.4
 WORKDIR /
 RUN mkdir /bazel && \
     cd /bazel && \
