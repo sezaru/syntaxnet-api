@@ -47,4 +47,4 @@ Notes:
 ------
 This project relies on Git submodules, so remember using ``--recursive`` tag when cloning.
 
-In case you want to deploy it with Docker, you should take into account that this project Dockerfile includes commands for tensorflow compilation, so build phase will take some time. In case you wanted to modify anything regarding the deployment phase, maybe you should consider splitting the Dockerfile, in order to avoid repeating compilation multiple times.
+In case you want to deploy it with Docker, you should take into account that this project Dockerfile includes commands for tensorflow's syntaxnet compilation, so build phase will take some time. In case you wanted to modify anything regarding the deployment phase, maybe you should consider splitting the Dockerfile, in order to avoid repeating compilation multiple times.
