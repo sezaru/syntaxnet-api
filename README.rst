@@ -1,6 +1,6 @@
 Dockerized SyntaxNet POS Tagger API
 ===================================
-**NOTE**: this is a fork from [https://github.com/danielperezr88/syntaxnet-api](https://github.com/danielperezr88/syntaxnet-api) which I've adapted to use the docker version with only Chinese, English, French, German, Italian, Portuguese and Spanish. The reason is to save memory and space. This repository heavily relies on the previous work done by [https://github.com/davidsbatista/syntaxnet-api](https://github.com/davidsbatista/syntaxnet-api).
+**NOTE**: this is a fork from `https://github.com/danielperezr88/syntaxnet-api` which I've adapted to use the docker version with only Chinese, English, French, German, Italian, Portuguese and Spanish. The reason is to save memory and space. This repository heavily relies on the previous work done by `https://github.com/davidsbatista/syntaxnet-api`.
 
 A small HTTP API for SyntaxNet POS Tagger under Apache 2 Licence.
 Based on version available `here<http://syntaxnet.askplatyp.us>`.
