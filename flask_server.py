@@ -97,8 +97,7 @@ def _v1_spec():
                             'description': 'The text language.',
                             'required': True,
                             'type': 'string',
-                            'enum': ['bg', 'cs', 'da', 'hr', 'el', 'en', 'es', 'et', 'eu', 'fi', 'fr', 'gl', 'grc',
-                                     'he', 'hi', 'hr', 'hu', 'id', 'it', 'la', 'nl', 'no', 'pl', 'pt', 'sl', 'sv', 'zh']
+                            'enum': ['de', 'en', 'es', 'fr', 'it', 'pt', 'zh']
                         }
                     ],
                     'consumes': [
