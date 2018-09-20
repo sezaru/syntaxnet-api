@@ -1,6 +1,9 @@
-FROM ubuntu:17.10
+FROM ubuntu:15.10
 
-MAINTAINER danielperezr88 <danielperezr88@gmail.com>
+MAINTAINER r3dlex <andrebemfs@gmail.com>
+
+# Ubuntu 15.10 is no longer supported so sources.list needs to be updated to avoid apt-get to fail
+RUN sed -i 's/archive.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
 
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -44,12 +47,12 @@ RUN echo "build --spawn_strategy=standalone --genrule_strategy=standalone" \
     >>/root/.bazelrc
 ENV BAZELRC /root/.bazelrc
 # Install the most recent bazel release.
-ENV BAZEL_VERSION 0.5.4
+ENV BAZEL_VERSION 0.3.2
 WORKDIR /
 RUN mkdir /bazel && \
     cd /bazel && \
     curl -fSsL -O https://github.com/bazelbuild/bazel/releases/download/$BAZEL_VERSION/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
-#    curl -fSsL -o /bazel/LICENSE.txt https://raw.githubusercontent.com/bazelbuild/bazel/master/LICENSE.txt && \
+    # curl -fSsL -o /bazel/LICENSE.txt https://raw.githubusercontent.com/bazelbuild/bazel/master/LICENSE.txt && \
     chmod +x bazel-*.sh && \
     ./bazel-$BAZEL_VERSION-installer-linux-x86_64.sh && \
     cd / && \
@@ -75,6 +78,9 @@ RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/syntaxnet \
 		-o /syntaxnet-api/tensorflow-models/syntaxnet/syntaxnet/parser_trainer_test_patch.txt \
 	&& patch -p1 < parser_trainer_test_patch.txt
 
+# Gets jpeg source from vlc instead ijg directly due to bzl failing with 403 because of cloudflare
+RUN sed -i 's/http:\/\/www.ijg.org\/files\/jpegsrc.v9a.tar.gz/https:\/\/download.videolan.org\/contrib\/jpeg\/jpegsrc.v9a.tar.gz/g' /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow/workspace.bzl 
+
 RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow \
 	&& echo "\ny\n\n\n\n" | ./configure
 
@@ -88,8 +94,7 @@ RUN cd /syntaxnet-api/tensorflow-models/syntaxnet \
 
 RUN mkdir /syntaxnet-api/tensorflow-models/syntaxnet/universal_models \
     && cd /syntaxnet-api/tensorflow-models/syntaxnet/universal_models \
-	&& for LANG in Ancient_Greek-PROIEL Basque Bulgarian Chinese Croatian Czech Danish Dutch English Estonian Finnish French Galician \
-		German Greek Hebrew Hindi Hungarian Indonesian Italian Latin-PROIEL Norwegian Persian Polish Portuguese Slovenian Spanish Swedish; \
+	&& for LANG in Chinese English French German Italian Portuguese Spanish; \
 		do wget http://download.tensorflow.org/models/parsey_universal/${LANG}.zip; unzip ${LANG}.zip; rm ${LANG}.zip; done
 
 RUN apt-get update && apt-get -y install python3-pip
