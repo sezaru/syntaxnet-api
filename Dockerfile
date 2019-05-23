@@ -1,6 +1,6 @@
 FROM ubuntu:15.10
 
-MAINTAINER r3dlex <andrebemfs@gmail.com>
+MAINTAINER sezaru <sezdocs@live.com>
 
 # Ubuntu 15.10 is no longer supported so sources.list needs to be updated to avoid apt-get to fail
 RUN sed -i 's/archive.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
@@ -94,7 +94,7 @@ RUN cd /syntaxnet-api/tensorflow-models/syntaxnet \
 
 RUN mkdir /syntaxnet-api/tensorflow-models/syntaxnet/universal_models \
     && cd /syntaxnet-api/tensorflow-models/syntaxnet/universal_models \
-	&& for LANG in Chinese English French German Italian Portuguese Spanish; \
+	&& for LANG in Portuguese; \
 		do wget http://download.tensorflow.org/models/parsey_universal/${LANG}.zip; unzip ${LANG}.zip; rm ${LANG}.zip; done
 
 RUN apt-get update && apt-get -y install python3-pip
