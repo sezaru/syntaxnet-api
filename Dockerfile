@@ -1,4 +1,4 @@
-FROM ubuntu:15.10
+FROM ubuntu:15.10 AS download_dependencies
 
 MAINTAINER sezaru <sezdocs@live.com>
 
@@ -35,6 +35,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN update-ca-certificates -f
 
+FROM download_dependencies AS setup_bazel
+
 # Set up Bazel.
 
 # Running bazel inside a `docker build` command causes trouble, cf:
@@ -58,50 +60,58 @@ RUN mkdir /bazel && \
     cd / && \
     rm -f /bazel/bazel-$BAZEL_VERSION-installer-linux-x86_64.sh
 
+FROM setup_bazel AS clone_syntaxnet
 
-# Syntaxnet dependencies
-
-RUN pip install -U protobuf==3.0.0b2
-RUN pip install asciitree
-RUN git clone --recursive https://github.com/danielperezr88/syntaxnet-api.git \
-    && cd /syntaxnet-api/tensorflow-models \
-    && git checkout dee751fafb66e511c6fec02b572670b50bc517fa \
+RUN git clone --depth 1 --recursive https://github.com/sezaru/syntaxnet-api.git \
     && cd /syntaxnet-api \
     && git submodule update --init --recursive
 
+FROM clone_syntaxnet AS syntaxnet_dependencies
+
+# Syntaxnet dependencies
+
+RUN pip install -U protobuf==3.1.0
+RUN pip install asciitree
+
+FROM syntaxnet_dependencies AS patch_syntaxnet
+
 RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow \
-	&& curl -fSL "https://github.com/bazelbuild/bazel/files/716847/diff.patch.txt" -o /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/diff.patch.txt \
+	&& curl -fSL "https://github.com/bazelbuild/bazel/files/716847/diff.patch.txt" -o diff.patch.txt \
 	&& patch -p1 < diff.patch.txt
 
-RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/syntaxnet \
-	&& curl -fSL "https://gist.githubusercontent.com/danielperezr88/044e757f340218a0f445693d15ff25b2/raw/24c55b040fb50149b237a31c19c4c114c56c4cf6/parser_trainer_test_patch.txt" \
-		-o /syntaxnet-api/tensorflow-models/syntaxnet/syntaxnet/parser_trainer_test_patch.txt \
-	&& patch -p1 < parser_trainer_test_patch.txt
-
 # Gets jpeg source from vlc instead ijg directly due to bzl failing with 403 because of cloudflare
-RUN sed -i 's/http:\/\/www.ijg.org\/files\/jpegsrc.v9a.tar.gz/https:\/\/download.videolan.org\/contrib\/jpeg\/jpegsrc.v9a.tar.gz/g' /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow/workspace.bzl 
+RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow \
+    && sed -i 's/http:\/\/www.ijg.org\/files\/jpegsrc.v9a.tar.gz/https:\/\/download.videolan.org\/contrib\/jpeg\/jpegsrc.v9a.tar.gz/g' workspace.bzl 
+
+COPY fix_workspace.bzl.patch /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow/fix_workspace.bzl.patch
+
+RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow \
+	&& patch -p0 < fix_workspace.bzl.patch
+
+FROM patch_syntaxnet AS configure_syntaxnet
 
 RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow \
 	&& echo "\ny\n\n\n\n" | ./configure
 
-RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow \
-	&& curl -fSL "https://gist.githubusercontent.com/danielperezr88/49b1ea867f026aa2c6541b3daced4a3a/raw/fc5abe227a05d23e92ceda4288092814f343bc0f/syntaxnetapi-workspacebzl-patch.txt" \
-		-o /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow/syntaxnetapi-workspacebzl-patch.txt \
-	&& patch -p1 < syntaxnetapi-workspacebzl-patch.txt
+FROM configure_syntaxnet AS build_syntaxnet
 
 RUN cd /syntaxnet-api/tensorflow-models/syntaxnet \
 	&& bazel test syntaxnet/... util/utf8/...
+
+FROM build_syntaxnet AS download_models
 
 RUN mkdir /syntaxnet-api/tensorflow-models/syntaxnet/universal_models \
     && cd /syntaxnet-api/tensorflow-models/syntaxnet/universal_models \
 	&& for LANG in Portuguese; \
 		do wget http://download.tensorflow.org/models/parsey_universal/${LANG}.zip; unzip ${LANG}.zip; rm ${LANG}.zip; done
 
+FROM download_models AS python3_syntaxnet_dependencies
+
 RUN apt-get update && apt-get -y install python3-pip
 
 RUN cd /syntaxnet-api && pip3 install -r requirements.txt
 
-EXPOSE 7000
+FROM python3_syntaxnet_dependencies AS finishing_steps
 
 WORKDIR /syntaxnet-api/
 
