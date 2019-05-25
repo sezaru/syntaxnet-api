@@ -28,7 +28,7 @@ In case you want to deploy it with Docker, you should take into account that thi
 
 Creating the Docker Image
 
-    git clone https://github.com/r3dlex/syntaxnet-api
+    git clone https://github.com/sezaru/syntaxnet-api
     
     cd syntaxnet-api
     
