@@ -1,0 +1,11 @@
+--- configure	2019-05-24 18:00:59.072925337 -0300
++++ configure_new	2019-05-24 18:27:37.478667885 -0300
+@@ -50,7 +50,7 @@
+ 
+   ## Verify that libcurl header files are available.
+   # Only check Linux, since on MacOS the header files are installed with XCode.
+-  if [[ $(uname -a) =~ Linux ]] && [[ ! -f "/usr/include/curl/curl.h" ]]; then
++  if [[ $(uname -a) =~ Linux ]] && [[ ! -f "/usr/include/x86_64-linux-gnu/curl/curl.h" ]]; then
+     echo "ERROR: It appears that the development version of libcurl is not "\
+ "available. Please install the libcurl3-dev package."
+     exit 1
