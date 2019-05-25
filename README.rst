@@ -37,3 +37,7 @@ Creating the Docker Image
 Running the Docker Image
 
     docker run -p 7000:7000 IMAGE_ID
+
+Testing
+
+    curl -X POST --header 'Content-Type: text/plain; charset=utf-8' --header 'Accept: text/plain' --header 'Content-Language: pt' -d 'Olá mundo, teste!' 'http://0.0.0.0:7000/v1/parsey-universal-full'
