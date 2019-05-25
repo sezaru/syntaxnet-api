@@ -63,13 +63,15 @@ COPY fix_workspace.bzl.patch \
   /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow/fix_workspace.bzl.patch
 
 RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow \
- && patch -p0 < fix_workspace.bzl.patch
+ && patch -p0 < fix_workspace.bzl.patch \
+ && rm fix_workspace.bzl.patch
 
 COPY fix_tensorflow_configure_to_find_libcurl.patch \
   /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/fix_tensorflow_configure_to_find_libcurl.patch
 
 RUN cd /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow \
- && patch -p0 < fix_tensorflow_configure_to_find_libcurl.patch
+ && patch -p0 < fix_tensorflow_configure_to_find_libcurl.patch \
+ && rm fix_tensorflow_configure_to_find_libcurl.patch
 
 FROM patch_syntaxnet AS configure_syntaxnet
 
