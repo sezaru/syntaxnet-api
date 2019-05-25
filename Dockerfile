@@ -57,7 +57,11 @@ RUN git clone --depth 1 --recursive https://github.com/sezaru/syntaxnet-api.git 
  && cd /syntaxnet-api \
  && git submodule update --init --recursive
 
-FROM clone_syntaxnet AS patch_syntaxnet
+FROM clone_syntaxnet AS compilation_dependencies
+
+RUN pip install mock
+
+FROM compilation_dependencies AS patch_syntaxnet
 
 COPY fix_workspace.bzl.patch \
   /syntaxnet-api/tensorflow-models/syntaxnet/tensorflow/tensorflow/fix_workspace.bzl.patch
